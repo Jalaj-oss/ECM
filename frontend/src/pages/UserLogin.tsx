@@ -1,6 +1,6 @@
 
 
-import{ Link } from "react-router-dom"
+import{ Link,useNavigate } from "react-router-dom"
 import { useState,type SubmitEvent } from "react"
 const UserLogin = () => {
      const [email, setEmail]= useState("");
@@ -8,8 +8,10 @@ const UserLogin = () => {
     const [emailError, setEmailError] = useState("")
 const [passwordError, setPasswordError] = useState("")
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-    const handleSubmit=(e : SubmitEvent<HTMLFormElement>)=> {
+const navigate =useNavigate()
+    const handleSubmit= async(e : SubmitEvent<HTMLFormElement>)=> {
+      e.preventDefault()
+      //email validation
  if(!email){
   setEmailError("Email is required");
  } else if(!emailPattern.test(email)){
@@ -18,6 +20,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
  else{
   setEmailError("");
  }
+ //pass validation
  if(!password){
   setPasswordError("password is required");
  } else if(password.length<6){
@@ -25,10 +28,50 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
  }else{
   setPasswordError("");
  }
- e.preventDefault();
-        console.log(email);
-        console.log(password);
+
+ if(
+  !email ||!password ||!emailPattern.test(email) || password.length <6
+ ){
+  return
+ }
+try {
+  const response = await fetch(
+    "http://localhost:5000/api/auth/login",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
     }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    alert(data.message);
+    return;
+  }
+
+  // Ensuring this is a user account
+  if (data.user.role !== "user") {
+    alert("This account does not have user access");
+    return;
+  }
+
+  // Save JWT
+  localStorage.setItem("token", data.token);
+
+  navigate("/user/dashboard");
+
+} catch (error) {
+  console.error("Login error:", error);
+  alert("Unable to connect to server");
+}
+}
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-96 rounded-xl border p-8 shadow">
