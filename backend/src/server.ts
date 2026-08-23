@@ -45,8 +45,4 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/user", userDashboardRoutes);
 app.use("/api/register", registerRoutes);
 app.use("/api/user", userOnlinePaymentRoutes);
-const PORT=5000
-
-app.listen(PORT,()=>{
-    console.log(`server running on http://localhost:${PORT}`)
-})
+export default app;
