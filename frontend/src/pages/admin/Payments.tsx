@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import API_URL from "../../config/api";
 
 interface Payment {
   id: number;
@@ -32,7 +33,7 @@ const Payments = () => {
           return;
         }
 
-        const response = await fetch("/api/payments", {
+        const response = await fetch(`${API_URL}/api/payments`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
@@ -65,7 +66,7 @@ const Payments = () => {
       }
 
       const response = await fetch(
-        `/api/payments/${payment.id}`,
+        `${API_URL}/api/payments/${payment.id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

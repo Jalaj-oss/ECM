@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UserSidebar from "../components/user/UserSidebar";
+import API_URL from "../config/api";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const UserDashboard = () => {
       const token = localStorage.getItem("token");
       if (!token) return navigate("/user/login");
       try {
-        const r = await fetch("/api/user/dashboard",
+        const r = await fetch(`${API_URL}/api/user/dashboard`,
           { headers: { Authorization: `Bearer ${token}` } });
         const d = await r.json();
         if (!r.ok) return setError(d.message || "Failed to load dashboard");

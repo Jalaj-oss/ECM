@@ -1,6 +1,7 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import API_URL from "../../config/api";
 
 interface User {
   id: number;
@@ -34,7 +35,7 @@ const AddMeter = () => {
         }
 
         const response = await fetch(
-          "/api/users",
+          `${API_URL}/api/users`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -84,7 +85,7 @@ const AddMeter = () => {
       }
 
       const response = await fetch(
-        "/api/meters",
+        `${API_URL}/api/meters`,
         {
           method: "POST",
           headers: {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UserSidebar from "../../components/user/UserSidebar";
+import API_URL from "../../config/api";
 
 interface Bill {
   id: number;
@@ -31,7 +32,7 @@ const UserBills = () => {
 
     try {
       const response = await fetch(
-        "/api/user/bills",
+        `${API_URL}/api/user/bills`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -83,7 +84,7 @@ const UserBills = () => {
       }
 
       const response = await fetch(
-        `/api/user/bills/${bill.id}/checkout`,
+        `${API_URL}/api/user/bills/${bill.id}/checkout`,
         {
           method: "POST",
           headers: {

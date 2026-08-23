@@ -1,6 +1,7 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
+import API_URL from "../../config/api";
 
 interface User {
   id: number;
@@ -43,10 +44,10 @@ const AddBill = () => {
 
       try {
         const [usersResponse, metersResponse] = await Promise.all([
-          fetch("/api/users", {
+          fetch(`${API_URL}/api/users`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("/api/meters", {
+          fetch(`${API_URL}/api/meters`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -111,7 +112,7 @@ const AddBill = () => {
         return;
       }
 
-      const response = await fetch("/api/bills", {
+      const response = await fetch(`${API_URL}/api/bills`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

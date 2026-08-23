@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import API_URL from "../../config/api";
 
 interface Meter {
   id: number;
@@ -32,7 +33,7 @@ const MeterDetails = () => {
         }
 
         const response = await fetch(
-          `/api/meters/${id}`,
+          `${API_URL}/api/meters/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -83,7 +84,7 @@ const MeterDetails = () => {
       }
 
       const response = await fetch(
-        `/api/meters/${meter.id}`,
+        `${API_URL}/api/meters/${meter.id}`,
         {
           method: "DELETE",
           headers: {

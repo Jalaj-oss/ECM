@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import API_URL from "../../config/api";
 
 interface Bill {
   id: number;
@@ -34,7 +35,7 @@ const Bills = () => {
         return;
       }
 
-      const response = await fetch("/api/bills", {
+      const response = await fetch(`${API_URL}/api/bills`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -68,7 +69,7 @@ const Bills = () => {
       }
 
       const response = await fetch(
-        `/api/bills/${bill.id}`,
+        `${API_URL}/api/bills/${bill.id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

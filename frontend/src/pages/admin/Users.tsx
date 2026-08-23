@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import API_URL from "../../config/api";
 
 interface User {
   id: number;
@@ -26,7 +27,7 @@ const Users = () => {
           return;
         }
 
-        const response = await fetch("/api/users", {
+        const response = await fetch(`${API_URL}/api/users`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -151,7 +152,7 @@ const Users = () => {
           }
 
           const response = await fetch(
-            `/api/users/${user.id}`,
+            `${API_URL}/api/users/${user.id}`,
             {
               method: "DELETE",
               headers: {

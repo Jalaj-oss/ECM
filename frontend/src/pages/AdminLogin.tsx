@@ -1,5 +1,6 @@
 import { Link,useNavigate } from "react-router-dom";
 import { useState, type SubmitEvent } from "react";
+import API_URL from "../config/api";
 
 const AdminLogin = () => {
   const navigate= useNavigate();
@@ -32,7 +33,7 @@ const AdminLogin = () => {
   }
   try{
     const response =await fetch(
-      "/api/auth/login",
+      `${API_URL}/api/auth/login`,
       {
         method:"POST",
         headers:{

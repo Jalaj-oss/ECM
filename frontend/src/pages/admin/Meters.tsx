@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import API_URL from "../../config/api";
 
 interface Meter {
   id: number;
@@ -31,7 +32,7 @@ const Meters = () => {
         }
 
         const response = await fetch(
-          "/api/meters",
+          `${API_URL}/api/meters`,
           {
             method: "GET",
             headers: {
@@ -85,7 +86,7 @@ const Meters = () => {
       }
 
       const response = await fetch(
-        `/api/meters/${meter.id}`,
+        `${API_URL}/api/meters/${meter.id}`,
         {
           method: "PUT",
           headers: {
@@ -153,7 +154,7 @@ const Meters = () => {
       }
 
       const response = await fetch(
-        `/api/meters/${meter.id}`,
+        `${API_URL}/api/meters/${meter.id}`,
         {
           method: "DELETE",
           headers: {

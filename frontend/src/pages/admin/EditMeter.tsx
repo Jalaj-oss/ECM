@@ -1,6 +1,7 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import API_URL from "../../config/api";
 
 interface User {
   id: number;
@@ -49,7 +50,7 @@ const EditMeter = () => {
         const [meterResponse, usersResponse] =
           await Promise.all([
             fetch(
-              `/api/meters/${id}`,
+              `${API_URL}/api/meters/${id}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -58,7 +59,7 @@ const EditMeter = () => {
             ),
 
             fetch(
-              "/api/users",
+              `${API_URL}/api/users`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -139,7 +140,7 @@ const EditMeter = () => {
       }
 
       const response = await fetch(
-        `/api/meters/${id}`,
+        `${API_URL}/api/meters/${id}`,
         {
           method: "PUT",
           headers: {

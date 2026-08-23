@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import API_URL from "../../config/api";
 
 interface Bill {
   id: number;
@@ -38,7 +39,7 @@ const BillDetails = () => {
         }
 
         const response = await fetch(
-          `/api/bills/${id}`,
+          `${API_URL}/api/bills/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const data = await response.json();

@@ -2,6 +2,7 @@
 
 import{ Link,useNavigate } from "react-router-dom"
 import { useState,type SubmitEvent } from "react"
+import API_URL from "../config/api";
 const UserLogin = () => {
      const [email, setEmail]= useState("");
     const [password, setPassword]= useState("");
@@ -36,7 +37,7 @@ const navigate =useNavigate()
  }
 try {
   const response = await fetch(
-    "/api/auth/login",
+    `${API_URL}/api/auth/login`,
     {
       method: "POST",
       headers: {
