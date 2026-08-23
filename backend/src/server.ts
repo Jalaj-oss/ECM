@@ -4,6 +4,11 @@ import pool from "./config/Database.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js"
 import meterRoutes from "./routes/meterRoutes.js"
+import billRoutes from "./routes/billRoutes.js"
+import paymentRoutes from "./routes/paymentRoutes.js"
+import reportRoutes from "./routes/reportRoutes.js"
+import userDashboardRoutes from "./routes/userDashboardRoutes.js"
+
 
 const app =express()
 
@@ -28,6 +33,10 @@ app.get("/api/health",async(req, res)=>{
 app.use("/api/auth",authRoutes)
 app.use("/api/users",userRoutes)
 app.use("/api/meters", meterRoutes);
+app.use("/api/bills", billRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/user", userDashboardRoutes);
 
 const PORT=5000
 

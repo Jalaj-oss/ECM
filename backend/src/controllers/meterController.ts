@@ -116,21 +116,24 @@ export const createMeter = async (req: Request, res: Response) => {
       });
     }
 
-    await pool.query(
-      `
-      INSERT INTO meters
-      (meter_number, user_id, meter_type, installation_date, status)
-      VALUES (?, ?, ?, ?, ?)
-      `,
-      [
-        meter_number,
-        user_id,
-        meter_type,
-        installation_date || null,
-        status || "active",
-      ]
-    );
+  const formattedInstallationDate = installation_date
+  ? String(installation_date).split("T")[0]
+  : null;
 
+await pool.query(
+  `
+  INSERT INTO meters
+  (meter_number, user_id, meter_type, installation_date, status)
+  VALUES (?, ?, ?, ?, ?)
+  `,
+  [
+    meter_number,
+    user_id,
+    meter_type,
+    formattedInstallationDate,
+    status || "active",
+  ]
+);
     return res.status(201).json({
       message: "Meter created successfully",
     });
@@ -154,6 +157,15 @@ export const updateMeter = async (req: Request, res: Response) => {
       installation_date,
       status,
     } = req.body;
+const formattedInstallationDate = installation_date
+  ? String(installation_date).split("T")[0]
+  : null;
+
+  if (status !== "active" && status !== "inactive") {
+    return res.status(400).json({
+      message: "Invalid meter status",
+    });
+  }
 
     if (!meter_number || !user_id || !meter_type) {
       return res.status(400).json({
@@ -161,11 +173,6 @@ export const updateMeter = async (req: Request, res: Response) => {
       });
     }
 
-    if (status !== "active" && status !== "inactive") {
-      return res.status(400).json({
-        message: "Invalid meter status",
-      });
-    }
 
     const [meterRows] = await pool.query(
       "SELECT id FROM meters WHERE id = ?",
@@ -200,26 +207,26 @@ export const updateMeter = async (req: Request, res: Response) => {
       });
     }
 
-    await pool.query(
-      `
-      UPDATE meters
-      SET
-        meter_number = ?,
-        user_id = ?,
-        meter_type = ?,
-        installation_date = ?,
-        status = ?
-      WHERE id = ?
-      `,
-      [
-        meter_number,
-        user_id,
-        meter_type,
-        installation_date || null,
-        status,
-        id,
-      ]
-    );
+  await pool.query(
+  `
+    UPDATE meters
+    SET
+      meter_number = ?,
+      user_id = ?,
+      meter_type = ?,
+      installation_date = ?,
+      status = ?
+    WHERE id = ?
+  `,
+  [
+    meter_number,
+    user_id,
+    meter_type,
+    formattedInstallationDate,
+    status,
+    id,
+  ]
+);
 
     return res.status(200).json({
       message: "Meter updated successfully",
