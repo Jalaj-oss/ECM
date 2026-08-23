@@ -8,11 +8,17 @@ import billRoutes from "./routes/billRoutes.js"
 import paymentRoutes from "./routes/paymentRoutes.js"
 import reportRoutes from "./routes/reportRoutes.js"
 import userDashboardRoutes from "./routes/userDashboardRoutes.js"
-
-
+import registerRoutes from "./routes/registerRoutes.js";
+import userOnlinePaymentRoutes from "./routes/userOnlinePaymentRoutes.js"
+import { handleStripeWebhook } from "./controllers/userOnlinePaymentController.js";
 const app =express()
 
 app.use(cors());
+app.post(
+  "/api/payments/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook
+);
 app.use(express.json());
 app.use("/api/auth",authRoutes)
 app.get("/api/health",async(req, res)=>{
@@ -37,7 +43,8 @@ app.use("/api/bills", billRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/user", userDashboardRoutes);
-
+app.use("/api/register", registerRoutes);
+app.use("/api/user", userOnlinePaymentRoutes);
 const PORT=5000
 
 app.listen(PORT,()=>{

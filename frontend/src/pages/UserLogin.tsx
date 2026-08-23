@@ -99,6 +99,19 @@ try {
             <button type="submit" className="mt-6 w-full rounded-lg bg-blue-500 py-2 text-white hover:bg-blue-600">Login</button>
             <Link  to="/" className="mt-4 inline-block"> click to select account type</Link>
         </form>
+        <div className="mt-6 text-center">
+  <p className="text-gray-600">
+    Don't have an account?
+  </p>
+
+  <button
+    type="button"
+    onClick={() => navigate("/user/register")}
+    className="mt-2 text-blue-600 hover:underline"
+  >
+    Create Account
+  </button>
+</div>
 
       </div>
     </div>
