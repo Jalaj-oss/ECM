@@ -11,7 +11,7 @@ const UserDashboard = () => {
       const token = localStorage.getItem("token");
       if (!token) return navigate("/user/login");
       try {
-        const r = await fetch("http://localhost:5000/api/user/dashboard",
+        const r = await fetch("/api/user/dashboard",
           { headers: { Authorization: `Bearer ${token}` } });
         const d = await r.json();
         if (!r.ok) return setError(d.message || "Failed to load dashboard");

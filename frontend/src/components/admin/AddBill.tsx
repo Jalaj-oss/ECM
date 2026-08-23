@@ -43,10 +43,10 @@ const AddBill = () => {
 
       try {
         const [usersResponse, metersResponse] = await Promise.all([
-          fetch("http://localhost:5000/api/users", {
+          fetch("/api/users", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5000/api/meters", {
+          fetch("/api/meters", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -111,7 +111,7 @@ const AddBill = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/bills", {
+      const response = await fetch("/api/bills", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

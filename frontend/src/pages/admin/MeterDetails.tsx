@@ -32,7 +32,7 @@ const MeterDetails = () => {
         }
 
         const response = await fetch(
-          `http://localhost:5000/api/meters/${id}`,
+          `/api/meters/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -83,7 +83,7 @@ const MeterDetails = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/meters/${meter.id}`,
+        `/api/meters/${meter.id}`,
         {
           method: "DELETE",
           headers: {

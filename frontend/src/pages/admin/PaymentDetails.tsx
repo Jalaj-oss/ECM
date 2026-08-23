@@ -36,7 +36,7 @@ const PaymentDetails = () => {
         }
 
         const response = await fetch(
-          `http://localhost:5000/api/payments/${id}`,
+          `/api/payments/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const data = await response.json();

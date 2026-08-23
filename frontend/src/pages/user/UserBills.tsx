@@ -31,7 +31,7 @@ const UserBills = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/user/bills",
+        "/api/user/bills",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -83,7 +83,7 @@ const UserBills = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/user/bills/${bill.id}/checkout`,
+        `/api/user/bills/${bill.id}/checkout`,
         {
           method: "POST",
           headers: {

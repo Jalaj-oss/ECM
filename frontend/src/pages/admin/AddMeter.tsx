@@ -34,7 +34,7 @@ const AddMeter = () => {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/users",
+          "/api/users",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -84,7 +84,7 @@ const AddMeter = () => {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/meters",
+        "/api/meters",
         {
           method: "POST",
           headers: {

@@ -34,7 +34,7 @@ const Bills = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/bills", {
+      const response = await fetch("/api/bills", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -68,7 +68,7 @@ const Bills = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/bills/${bill.id}`,
+        `/api/bills/${bill.id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

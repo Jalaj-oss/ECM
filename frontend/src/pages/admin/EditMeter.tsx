@@ -49,7 +49,7 @@ const EditMeter = () => {
         const [meterResponse, usersResponse] =
           await Promise.all([
             fetch(
-              `http://localhost:5000/api/meters/${id}`,
+              `/api/meters/${id}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -58,7 +58,7 @@ const EditMeter = () => {
             ),
 
             fetch(
-              "http://localhost:5000/api/users",
+              "/api/users",
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -139,7 +139,7 @@ const EditMeter = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/meters/${id}`,
+        `/api/meters/${id}`,
         {
           method: "PUT",
           headers: {

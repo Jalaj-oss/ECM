@@ -45,13 +45,13 @@ const EditBill = () => {
         }
 
         const [billResponse, usersResponse, metersResponse] = await Promise.all([
-          fetch(`http://localhost:5000/api/bills/${id}`, {
+          fetch(`/api/bills/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5000/api/users", {
+          fetch("/api/users", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5000/api/meters", {
+          fetch("/api/meters", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -115,7 +115,7 @@ const EditBill = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/bills/${id}`,
+        `/api/bills/${id}`,
         {
           method: "PUT",
           headers: {

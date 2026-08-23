@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://ecm-production-8450.up.railway.app/api/:path*"
+    }
+  ]
+}

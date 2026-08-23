@@ -34,7 +34,7 @@ const EditUser = () => {
         }
 
         const response = await fetch(
-          `http://localhost:5000/api/users/${id}`,
+          `/api/users/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -84,7 +84,7 @@ const EditUser = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/users/${id}`,
+        `/api/users/${id}`,
         {
           method: "PUT",
           headers: {

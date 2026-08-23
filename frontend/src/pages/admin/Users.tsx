@@ -26,7 +26,7 @@ const Users = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:5000/api/users", {
+        const response = await fetch("/api/users", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -151,7 +151,7 @@ const Users = () => {
           }
 
           const response = await fetch(
-            `http://localhost:5000/api/users/${user.id}`,
+            `/api/users/${user.id}`,
             {
               method: "DELETE",
               headers: {

@@ -6,7 +6,7 @@ const UserProfile = () => {
   const navigate = useNavigate(); const [user, setUser] = useState<any>(); const [error, setError] = useState("");
   useEffect(() => { (async () => {
     const token = localStorage.getItem("token"); if (!token) return navigate("/user/login");
-    try { const r = await fetch("http://localhost:5000/api/user/profile",{headers:{Authorization:`Bearer ${token}`}});
+    try { const r = await fetch("/api/user/profile",{headers:{Authorization:`Bearer ${token}`}});
       const d=await r.json(); if(!r.ok) setError(d.message||"Failed to load profile"); else setUser(d.user);
     } catch { setError("Unable to connect to server"); }
   })(); }, [navigate]);

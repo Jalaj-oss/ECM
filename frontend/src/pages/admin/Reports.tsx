@@ -53,7 +53,7 @@ const Reports = () => {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/reports/summary",
+          "/api/reports/summary",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const result = await response.json();

@@ -31,7 +31,7 @@ const Meters = () => {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/meters",
+          "/api/meters",
           {
             method: "GET",
             headers: {
@@ -85,7 +85,7 @@ const Meters = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/meters/${meter.id}`,
+        `/api/meters/${meter.id}`,
         {
           method: "PUT",
           headers: {
@@ -153,7 +153,7 @@ const Meters = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/meters/${meter.id}`,
+        `/api/meters/${meter.id}`,
         {
           method: "DELETE",
           headers: {
