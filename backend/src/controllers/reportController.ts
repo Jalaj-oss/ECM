@@ -6,6 +6,10 @@ interface CountRow extends RowDataPacket {
   count: number;
 }
 
+interface TotalRow extends RowDataPacket {
+  total: number;
+}
+
 export const getReportSummary = async (
   _req: Request,
   res: Response
@@ -51,17 +55,70 @@ export const getReportSummary = async (
       "SELECT COUNT(*) AS count FROM payments WHERE status = 'failed'"
     );
 
+    const [sumBilled] = await pool.query<TotalRow[]>(
+      "SELECT COALESCE(SUM(amount), 0) AS total FROM bills"
+    );
+
+    const [sumPaid] = await pool.query<TotalRow[]>(
+      "SELECT COALESCE(SUM(amount), 0) AS total FROM bills WHERE status = 'paid'"
+    );
+
+    const [sumOutstanding] = await pool.query<TotalRow[]>(
+      "SELECT COALESCE(SUM(amount), 0) AS total FROM bills WHERE status IN ('pending', 'overdue')"
+    );
+
+    const [recentBills] = await pool.query<RowDataPacket[]>(
+      `SELECT b.id, b.billing_month, b.amount, b.status, u.name AS user_name, m.meter_number 
+       FROM bills b 
+       LEFT JOIN users u ON b.user_id = u.id 
+       LEFT JOIN meters m ON b.meter_id = m.id 
+       ORDER BY b.id DESC LIMIT 5`
+    );
+
+    const [recentPayments] = await pool.query<RowDataPacket[]>(
+      `SELECT p.id, p.amount, p.payment_date, p.payment_method, p.status, u.name AS user_name 
+       FROM payments p 
+       LEFT JOIN users u ON p.user_id = u.id 
+       ORDER BY p.id DESC LIMIT 5`
+    );
+
+    const userCount = Number(users[0]?.count || 0);
+    const meterCount = Number(meters[0]?.count || 0);
+    const activeMeterCount = Number(activeMeters[0]?.count || 0);
+    const billCount = Number(bills[0]?.count || 0);
+    const pendingBillCount = Number(pendingBills[0]?.count || 0);
+    const paidBillCount = Number(paidBills[0]?.count || 0);
+    const overdueBillCount = Number(overdueBills[0]?.count || 0);
+    const paymentCount = Number(payments[0]?.count || 0);
+    const completedPaymentCount = Number(completedPayments[0]?.count || 0);
+    const failedPaymentCount = Number(failedPayments[0]?.count || 0);
+    const totalBilled = Number(sumBilled[0]?.total || 0);
+    const totalPaidBills = Number(sumPaid[0]?.total || 0);
+    const outstandingAmount = Number(sumOutstanding[0]?.total || 0);
+
+    const summaryData = {
+      users: userCount,
+      meters: meterCount,
+      activeMeters: activeMeterCount,
+      bills: billCount,
+      pendingBills: pendingBillCount,
+      paidBills: paidBillCount,
+      overdueBills: overdueBillCount,
+      payments: paymentCount,
+      paymentCount: paymentCount,
+      completedPayments: completedPaymentCount,
+      failedPayments: failedPaymentCount,
+      totalBilled,
+      totalPaidBills,
+      outstandingAmount,
+      totalPayments: totalPaidBills,
+    };
+
     return res.status(200).json({
-      users: users[0]?.count || 0,
-      meters: meters[0]?.count || 0,
-      activeMeters: activeMeters[0]?.count || 0,
-      bills: bills[0]?.count || 0,
-      pendingBills: pendingBills[0]?.count || 0,
-      paidBills: paidBills[0]?.count || 0,
-      overdueBills: overdueBills[0]?.count || 0,
-      payments: payments[0]?.count || 0,
-      completedPayments: completedPayments[0]?.count || 0,
-      failedPayments: failedPayments[0]?.count || 0,
+      ...summaryData,
+      summary: summaryData,
+      recentBills,
+      recentPayments,
     });
   } catch (error) {
     console.error("Get report summary error:", error);
