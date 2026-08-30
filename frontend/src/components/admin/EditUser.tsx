@@ -1,17 +1,9 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import API_URL from "../../config/api";
 
-// interface User {
-//   id: number;
-//   name: string;
-//   email: string;
-//   role: "admin" | "user";
-// }
-
 const EditUser = () => {
-   
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -22,6 +14,7 @@ const EditUser = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // Load existing user
   useEffect(() => {
@@ -34,14 +27,11 @@ const EditUser = () => {
           return;
         }
 
-        const response = await fetch(
-          `${API_URL}/api/users/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`${API_URL}/api/users/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const data = await response.json();
 
@@ -53,8 +43,8 @@ const EditUser = () => {
         setName(data.user.name);
         setEmail(data.user.email);
         setRole(data.user.role);
-      } catch (error) {
-        console.error("Fetch user error:", error);
+      } catch (err) {
+        console.error("Fetch user error:", err);
         setError("Unable to connect to server");
       } finally {
         setLoading(false);
@@ -64,10 +54,10 @@ const EditUser = () => {
     fetchUser();
   }, [id, navigate]);
 
-  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setError("");
+    setSuccess("");
 
     if (!name || !email) {
       setError("Name and email are required");
@@ -84,21 +74,18 @@ const EditUser = () => {
         return;
       }
 
-      const response = await fetch(
-        `${API_URL}/api/users/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name,
-            email,
-            role,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/users/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          role,
+        }),
+      });
 
       const data = await response.json();
 
@@ -107,25 +94,25 @@ const EditUser = () => {
         return;
       }
 
-      alert("User updated successfully");
+      setSuccess("User updated successfully! Redirecting...");
 
-      navigate(`/admin/users/${id}`);
-    } catch (error) {
-      console.error("Update user error:", error);
+      setTimeout(() => {
+        navigate(`/admin/users/${id}`);
+      }, 1000);
+    } catch (err) {
+      console.error("Update user error:", err);
       setError("Unable to connect to server");
     } finally {
       setSaving(false);
     }
   };
 
-
   if (loading) {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <AdminSidebar />
-
         <main className="flex-1 p-8">
-          <p className="text-gray-500">Loading user...</p>
+          <p className="text-gray-500">Loading user details...</p>
         </main>
       </div>
     );
@@ -139,16 +126,13 @@ const EditUser = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Edit User</h1>
-
-            <p className="mt-2 text-gray-600">
-              Update user information
-            </p>
+            <p className="mt-2 text-gray-600">Update user information</p>
           </div>
 
           <button
             type="button"
             onClick={() => navigate(`/admin/users/${id}`)}
-            className="rounded-lg border px-4 py-2 hover:bg-gray-100"
+            className="rounded-lg border px-4 py-2 hover:bg-gray-100 transition"
           >
             Back to User
           </button>
@@ -156,62 +140,62 @@ const EditUser = () => {
 
         <div className="mt-8 max-w-xl rounded-xl border bg-white p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
-
             <div>
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-medium text-gray-700">
                 Name
               </label>
-
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-2 w-full rounded-lg border p-2"
+                required
+                className="mt-2 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-medium text-gray-700">
                 Email
               </label>
-
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-2 w-full rounded-lg border p-2"
+                required
+                className="mt-2 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-medium text-gray-700">
                 Role
               </label>
-
               <select
                 value={role}
                 onChange={(e) =>
                   setRole(e.target.value as "admin" | "user")
                 }
-                className="mt-2 w-full rounded-lg border p-2"
+                className="mt-2 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500 bg-white"
               >
-                <option value="user">User</option>
+                <option value="user">User (Customer)</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
 
             {error && (
-              <p className="text-sm text-red-500">
-                {error}
-              </p>
+              <p className="text-sm font-medium text-red-500">{error}</p>
+            )}
+
+            {success && (
+              <p className="text-sm font-medium text-green-600">{success}</p>
             )}
 
             <button
               type="submit"
               disabled={saving}
-              className="w-full rounded-lg bg-blue-500 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
+              className="w-full rounded-lg bg-blue-500 py-3 font-medium text-white hover:bg-blue-600 transition disabled:opacity-50"
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? "Saving Changes..." : "Save Changes"}
             </button>
           </form>
         </div>
