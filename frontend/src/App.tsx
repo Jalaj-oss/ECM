@@ -42,7 +42,7 @@ import UserBills from "./pages/user/UserBills";
 import UserBillDetails from "./pages/user/UserBillDetails";
 import UserPayments from "./pages/user/UserPayments";
 import UserPaymentDetails from "./pages/user/UserPaymentDetails";
-import UserRegister from "./pages/UserRegister"
+import UserRegister from "./pages/UserRegister";
 import UserPaymentSuccess from "./pages/user/UserPaymentSuccess";
 
 const App = () => {
@@ -60,6 +60,7 @@ const App = () => {
         <Route path="/admin/login" element={<AdminLogin />} />
 
         <Route path="/user/login" element={<UserLogin />} />
+        <Route path="/user/register" element={<UserRegister />} />
 
 
         {/* =========================
@@ -157,14 +158,11 @@ const App = () => {
           />
 
 
-  
-
           {/* Reports */}
           <Route
             path="/admin/reports"
             element={<Reports />}
           />
-
 
         </Route>
 
@@ -214,21 +212,14 @@ const App = () => {
             path="/user/payments/:id"
             element={<UserPaymentDetails />}
           />
+
           <Route
-    path="/user/payment-success"
-    element={<UserPaymentSuccess />}
-  />
-{/* regiteration  */}
-<Route
-  path="/user/register"
-  element={<UserRegister />}
-/>
+            path="/user/payment-success"
+            element={<UserPaymentSuccess />}
+          />
+
         </Route>
 
-<Route
-  path="/user/register"
-  element={<UserRegister />}
-/>
       </Routes>
     </BrowserRouter>
   );

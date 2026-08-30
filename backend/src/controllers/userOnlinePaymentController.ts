@@ -58,7 +58,7 @@ export const createBillCheckoutSession = async (
     }
 
     const frontendUrl =
-      process.env.FRONTEND_URL || "http://localhost:5173";
+      process.env.FRONTEND_URL || "https://frontend-production-d4e7.up.railway.app";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -92,6 +92,96 @@ export const createBillCheckoutSession = async (
     console.error("Create bill checkout session error:", error);
     return res.status(500).json({
       message: "Unable to start online payment",
+    });
+  }
+};
+
+export const verifyCheckoutSession = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const userId = getUserId(req);
+    const sessionId = String(req.query.session_id || "");
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!sessionId) {
+      return res.status(400).json({ message: "Session ID is required" });
+    }
+
+    if (!stripeSecret) {
+      return res.status(500).json({ message: "Stripe is not configured" });
+    }
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status !== "paid") {
+      return res.status(400).json({ message: "Payment not completed" });
+    }
+
+    const billId = Number(session.metadata?.bill_id);
+    const sessionUserId = Number(session.metadata?.user_id);
+
+    if (!billId || sessionUserId !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const [billRows] = await pool.query(
+      `SELECT id, user_id, amount, status
+       FROM bills
+       WHERE id = ? AND user_id = ?`,
+      [billId, userId]
+    );
+
+    const bills = billRows as any[];
+
+    if (!bills.length) {
+      return res.status(404).json({ message: "Bill not found" });
+    }
+
+    const bill = bills[0];
+    const transactionId = session.payment_intent
+      ? String(session.payment_intent)
+      : session.id;
+
+    if (String(bill.status).toLowerCase() !== "paid") {
+      // Record payment
+      await pool.query(
+        `INSERT INTO payments
+         (bill_id, user_id, amount, payment_date,
+          payment_method, transaction_id, status)
+         VALUES (?, ?, ?, NOW(), ?, ?, ?)`,
+        [
+          billId,
+          userId,
+          bill.amount,
+          "card",
+          transactionId,
+          "completed",
+        ]
+      );
+
+      // Update bill status
+      await pool.query(
+        "UPDATE bills SET status = 'paid' WHERE id = ? AND user_id = ?",
+        [billId, userId]
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment verified and recorded successfully",
+      billId,
+      amount: bill.amount,
+      transactionId,
+    });
+  } catch (error) {
+    console.error("Verify checkout session error:", error);
+    return res.status(500).json({
+      message: "Unable to verify payment session",
     });
   }
 };
@@ -152,7 +242,7 @@ export const handleStripeWebhook = async (
               billId,
               userId,
               bills[0].amount,
-              "stripe",
+              "card",
               transactionId,
               "completed",
             ]
