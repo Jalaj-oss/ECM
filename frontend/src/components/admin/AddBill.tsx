@@ -1,4 +1,4 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
 import API_URL from "../../config/api";
@@ -76,11 +76,23 @@ const AddBill = () => {
     load();
   }, [navigate]);
 
+  // Auto-calculate Units Consumed whenever Previous Reading or Current Reading changes
+  useEffect(() => {
+    if (previousReading !== "" && currentReading !== "") {
+      const prev = Number(previousReading);
+      const curr = Number(currentReading);
+      if (!Number.isNaN(prev) && !Number.isNaN(curr)) {
+        const units = Math.max(0, curr - prev);
+        setUnitsConsumed(String(units));
+      }
+    }
+  }, [previousReading, currentReading]);
+
   const userMeters = meters.filter(
     (meter) => Number(meter.user_id) === Number(userId)
   );
 
-  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -177,6 +189,7 @@ const AddBill = () => {
                   setMeterId("");
                 }}
                 className="mt-2 w-full rounded-lg border p-2"
+                required
               >
                 <option value="">Select user</option>
                 {users.map((user) => (
@@ -194,6 +207,7 @@ const AddBill = () => {
                 onChange={(e) => setMeterId(e.target.value)}
                 className="mt-2 w-full rounded-lg border p-2"
                 disabled={!userId}
+                required
               >
                 <option value="">Select meter</option>
                 {userMeters.map((meter) => (
@@ -212,6 +226,7 @@ const AddBill = () => {
                   value={billingMonth}
                   onChange={(e) => setBillingMonth(e.target.value)}
                   className="mt-2 w-full rounded-lg border p-2"
+                  required
                 />
               </div>
               <div>
@@ -221,6 +236,7 @@ const AddBill = () => {
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
                   className="mt-2 w-full rounded-lg border p-2"
+                  required
                 />
               </div>
             </div>
@@ -233,7 +249,9 @@ const AddBill = () => {
                   step="0.01"
                   value={previousReading}
                   onChange={(e) => setPreviousReading(e.target.value)}
+                  placeholder="e.g. 500"
                   className="mt-2 w-full rounded-lg border p-2"
+                  required
                 />
               </div>
               <div>
@@ -243,7 +261,9 @@ const AddBill = () => {
                   step="0.01"
                   value={currentReading}
                   onChange={(e) => setCurrentReading(e.target.value)}
+                  placeholder="e.g. 800"
                   className="mt-2 w-full rounded-lg border p-2"
+                  required
                 />
               </div>
             </div>
@@ -256,17 +276,24 @@ const AddBill = () => {
                   step="0.01"
                   value={unitsConsumed}
                   onChange={(e) => setUnitsConsumed(e.target.value)}
-                  className="mt-2 w-full rounded-lg border p-2"
+                  placeholder="Auto-calculated (Current - Previous)"
+                  className="mt-2 w-full rounded-lg border p-2 bg-blue-50/50"
+                  required
                 />
+                <p className="mt-1 text-xs text-blue-600 font-medium">
+                  Auto-calculated: Current Reading − Previous Reading
+                </p>
               </div>
               <div>
-                <label className="block text-sm font-medium">Amount</label>
+                <label className="block text-sm font-medium">Amount (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
+                  placeholder="Enter total bill amount"
                   className="mt-2 w-full rounded-lg border p-2"
+                  required
                 />
               </div>
             </div>
@@ -278,7 +305,7 @@ const AddBill = () => {
                 onChange={(e) =>
                   setStatus(e.target.value as "pending" | "paid" | "overdue")
                 }
-                className="mt-2 w-full rounded-lg border p-2"
+                className="mt-2 w-full rounded-lg border p-2 bg-white"
               >
                 <option value="pending">Pending</option>
                 <option value="paid">Paid</option>
@@ -286,14 +313,14 @@ const AddBill = () => {
               </select>
             </div>
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
 
             <button
               type="submit"
               disabled={saving}
-              className="w-full rounded-lg bg-blue-500 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
+              className="w-full rounded-lg bg-blue-500 py-3 font-medium text-white hover:bg-blue-600 disabled:opacity-50 transition"
             >
-              {saving ? "Creating..." : "Create Bill"}
+              {saving ? "Creating Bill..." : "Create Bill"}
             </button>
           </form>
         </div>
