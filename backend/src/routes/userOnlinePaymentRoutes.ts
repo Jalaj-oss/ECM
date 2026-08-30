@@ -14,7 +14,7 @@ router.post(
 );
 
 router.get(
-  "/payments/verify-checkout",
+  "/checkout/verify",
   authenticate,
   verifyCheckoutSession
 );

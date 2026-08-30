@@ -31,7 +31,7 @@ const UserPaymentSuccess = () => {
 
       try {
         const response = await fetch(
-          `${API_URL}/api/user/payments/verify-checkout?session_id=${sessionId}`,
+          `${API_URL}/api/user/checkout/verify?session_id=${sessionId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -76,14 +76,16 @@ const UserPaymentSuccess = () => {
             </div>
           ) : error ? (
             <div>
-              <div className="text-5xl text-red-500">✕</div>
-              <h1 className="mt-4 text-3xl font-bold">Verification Warning</h1>
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-3xl text-red-600">
+                ✕
+              </div>
+              <h1 className="mt-4 text-3xl font-bold">Verification Notice</h1>
               <p className="mt-3 text-red-600">{error}</p>
               <div className="mt-8 flex justify-center gap-3">
                 <button
                   type="button"
                   onClick={() => navigate("/user/bills")}
-                  className="rounded-lg bg-blue-500 px-5 py-3 text-white hover:bg-blue-600"
+                  className="rounded-lg bg-blue-500 px-5 py-3 font-medium text-white hover:bg-blue-600"
                 >
                   View My Bills
                 </button>
@@ -104,7 +106,7 @@ const UserPaymentSuccess = () => {
               </p>
 
               {details.billId && (
-                <div className="mt-6 rounded-lg bg-gray-50 p-4 text-left space-y-2 text-sm">
+                <div className="mt-6 rounded-lg bg-gray-50 p-4 text-left space-y-2 text-sm border">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Bill ID:</span>
                     <span className="font-semibold">#{details.billId}</span>
