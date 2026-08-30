@@ -116,24 +116,26 @@ export const verifyCheckoutSession = async (
       return res.status(500).json({ message: "Stripe is not configured" });
     }
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-    if (session.payment_status !== "paid") {
-      return res.status(400).json({ message: "Payment not completed" });
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId);
+    } catch (stripeErr: any) {
+      return res.status(404).json({
+        message: "Invalid or expired payment session. Please try paying your bill again from My Bills.",
+      });
     }
 
     const billId = Number(session.metadata?.bill_id);
-    const sessionUserId = Number(session.metadata?.user_id);
 
-    if (!billId || sessionUserId !== userId) {
-      return res.status(403).json({ message: "Forbidden" });
+    if (!billId) {
+      return res.status(400).json({ message: "Bill ID missing from payment metadata" });
     }
 
     const [billRows] = await pool.query(
       `SELECT id, user_id, amount, status
        FROM bills
-       WHERE id = ? AND user_id = ?`,
-      [billId, userId]
+       WHERE id = ?`,
+      [billId]
     );
 
     const bills = billRows as any[];
@@ -143,33 +145,53 @@ export const verifyCheckoutSession = async (
     }
 
     const bill = bills[0];
+
+    // If bill is already marked paid, return success directly
+    if (String(bill.status).toLowerCase() === "paid") {
+      const [payRows] = await pool.query(
+        "SELECT transaction_id FROM payments WHERE bill_id = ? ORDER BY id DESC LIMIT 1",
+        [billId]
+      );
+      const paymentRecord = (payRows as any[])[0];
+
+      return res.status(200).json({
+        success: true,
+        message: "Payment confirmed",
+        billId,
+        amount: bill.amount,
+        transactionId: paymentRecord?.transaction_id || session.payment_intent || session.id,
+      });
+    }
+
+    if (session.payment_status !== "paid") {
+      return res.status(400).json({
+        message: "Payment was not completed. Please return to My Bills and complete payment.",
+      });
+    }
+
     const transactionId = session.payment_intent
       ? String(session.payment_intent)
       : session.id;
 
-    if (String(bill.status).toLowerCase() !== "paid") {
-      // Record payment
-      await pool.query(
-        `INSERT INTO payments
-         (bill_id, user_id, amount, payment_date,
-          payment_method, transaction_id, status)
-         VALUES (?, ?, ?, NOW(), ?, ?, ?)`,
-        [
-          billId,
-          userId,
-          bill.amount,
-          "card",
-          transactionId,
-          "completed",
-        ]
-      );
+    await pool.query(
+      `INSERT INTO payments
+       (bill_id, user_id, amount, payment_date,
+        payment_method, transaction_id, status)
+       VALUES (?, ?, ?, NOW(), ?, ?, ?)`,
+      [
+        billId,
+        userId,
+        bill.amount,
+        "card",
+        transactionId,
+        "completed",
+      ]
+    );
 
-      // Update bill status
-      await pool.query(
-        "UPDATE bills SET status = 'paid' WHERE id = ? AND user_id = ?",
-        [billId, userId]
-      );
-    }
+    await pool.query(
+      "UPDATE bills SET status = 'paid' WHERE id = ?",
+      [billId]
+    );
 
     return res.status(200).json({
       success: true,
