@@ -1,4 +1,4 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useEffect, useMemo, useState, type SubmitEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import API_URL from "../../config/api";
@@ -28,13 +28,23 @@ const EditBill = () => {
   const [billingMonth, setBillingMonth] = useState("");
   const [previousReading, setPreviousReading] = useState("");
   const [currentReading, setCurrentReading] = useState("");
-  const [unitsConsumed, setUnitsConsumed] = useState("");
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [status, setStatus] = useState<"pending" | "paid" | "overdue">("pending");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [dateError, setDateError] = useState("");
+
+  // Units Consumed is derived — never typed by hand
+  const unitsConsumed = useMemo(() => {
+    const prev = Number(previousReading);
+    const curr = Number(currentReading);
+    if (previousReading === "" || currentReading === "" || Number.isNaN(prev) || Number.isNaN(curr)) {
+      return 0;
+    }
+    return Math.max(0, curr - prev);
+  }, [previousReading, currentReading]);
 
   useEffect(() => {
     const load = async () => {
@@ -81,7 +91,6 @@ const EditBill = () => {
         setBillingMonth(String(bill.billing_month).split("T")[0]);
         setPreviousReading(String(bill.previous_reading));
         setCurrentReading(String(bill.current_reading));
-        setUnitsConsumed(String(bill.units_consumed));
         setAmount(String(bill.amount));
         setDueDate(String(bill.due_date).split("T")[0]);
         setStatus(bill.status);
@@ -102,9 +111,23 @@ const EditBill = () => {
     (meter) => Number(meter.user_id) === Number(userId)
   );
 
+  // Live check — flags the conflict as soon as both dates are set
+  useEffect(() => {
+    if (billingMonth && dueDate && billingMonth === dueDate) {
+      setDateError("Billing month and due date can't be the same date.");
+    } else {
+      setDateError("");
+    }
+  }, [billingMonth, dueDate]);
+
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+
+    if (billingMonth === dueDate) {
+      setDateError("Billing month and due date can't be the same date.");
+      return;
+    }
 
     try {
       setSaving(true);
@@ -129,7 +152,7 @@ const EditBill = () => {
             billing_month: billingMonth,
             previous_reading: Number(previousReading),
             current_reading: Number(currentReading),
-            units_consumed: Number(unitsConsumed),
+            units_consumed: unitsConsumed,
             amount: Number(amount),
             due_date: dueDate,
             status,
@@ -221,13 +244,24 @@ const EditBill = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium">Billing Month</label>
-                <input type="date" value={billingMonth} onChange={(e) => setBillingMonth(e.target.value)} className="mt-2 w-full rounded-lg border p-2" />
+                <input
+                  type="date"
+                  value={billingMonth}
+                  onChange={(e) => setBillingMonth(e.target.value)}
+                  className={`mt-2 w-full rounded-lg border p-2 ${dateError ? "border-red-400" : ""}`}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium">Due Date</label>
-                <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="mt-2 w-full rounded-lg border p-2" />
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className={`mt-2 w-full rounded-lg border p-2 ${dateError ? "border-red-400" : ""}`}
+                />
               </div>
             </div>
+            {dateError && <p className="text-sm text-red-500">{dateError}</p>}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -243,7 +277,14 @@ const EditBill = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium">Units Consumed</label>
-                <input type="number" step="0.01" value={unitsConsumed} onChange={(e) => setUnitsConsumed(e.target.value)} className="mt-2 w-full rounded-lg border p-2" />
+                <input
+                  type="text"
+                  value={unitsConsumed}
+                  readOnly
+                  disabled
+                  className="mt-2 w-full cursor-not-allowed rounded-lg border bg-gray-100 p-2 text-gray-700"
+                />
+                <p className="mt-1 text-xs text-gray-400">Auto-calculated: Current − Previous</p>
               </div>
               <div>
                 <label className="block text-sm font-medium">Amount</label>
@@ -262,7 +303,11 @@ const EditBill = () => {
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
-            <button type="submit" disabled={saving} className="w-full rounded-lg bg-blue-500 py-2 text-white hover:bg-blue-600 disabled:opacity-50">
+            <button
+              type="submit"
+              disabled={saving || !!dateError}
+              className="w-full rounded-lg bg-blue-500 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
+            >
               {saving ? "Saving..." : "Save Changes"}
             </button>
           </form>
