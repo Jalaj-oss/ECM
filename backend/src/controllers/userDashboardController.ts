@@ -9,7 +9,7 @@ export const getUserDashboard = async (req: Request, res: Response) => {
     if (!id) return res.status(401).json({ message: "Unauthorized" });
 
     const [users] = await pool.query(
-      "SELECT id, name, email, role FROM users WHERE id = ?", [id]
+      "SELECT id, name, email, role, phone, address FROM users WHERE id = ?", [id]
     );
     const userRows = users as any[];
     if (!userRows.length) return res.status(404).json({ message: "User not found" });
@@ -40,7 +40,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
   try {
     const id = userId(req);
     const [rows] = await pool.query(
-      "SELECT id, name, email, role FROM users WHERE id = ?", [id]
+      "SELECT id, name, email, role, phone, address FROM users WHERE id = ?", [id]
     );
     const users = rows as any[];
     if (!users.length) return res.status(404).json({ message: "User not found" });

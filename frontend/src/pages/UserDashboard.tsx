@@ -41,6 +41,15 @@ const UserDashboard = () => {
       </div>
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <section className="rounded-xl border bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-semibold">Profile Details</h2>
+          <div className="mt-4 space-y-2">
+            <p>Name: {data.user.name || "Not provided"}</p>
+            <p>Email: {data.user.email || "Not provided"}</p>
+            <p>Phone Number: {data.user.phone || "Not provided"}</p>
+            <p>Address: {data.user.address || "Not provided"}</p>
+          </div>
+        </section>
+        <section className="rounded-xl border bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold">Latest Meter</h2>
           {data.meters[0] ? <div className="mt-4 space-y-2">
             <p>Meter: {data.meters[0].meter_number}</p>
