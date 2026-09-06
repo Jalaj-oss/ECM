@@ -112,6 +112,14 @@ const UserLogin = () => {
             Login
           </button>
 
+          {/* Secondary option: Admin access */}
+          <Link
+            to="/admin/login"
+            className="mt-4 block text-center text-sm text-blue-600 hover:underline"
+          >
+            Login as Admin
+          </Link>
+
           <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:underline">
             ← Back to account type selection
           </Link>
