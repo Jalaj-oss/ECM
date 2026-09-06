@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import AdminLogin from "./pages/AdminLogin";
 import UserLogin from "./pages/UserLogin";
@@ -45,6 +45,8 @@ import UserPaymentDetails from "./pages/user/UserPaymentDetails";
 import UserRegister from "./pages/UserRegister";
 import UserPaymentSuccess from "./pages/user/UserPaymentSuccess";
 
+void UserLogin;
+
 const App = () => {
   return (
     <BrowserRouter>
@@ -59,7 +61,7 @@ const App = () => {
 
         <Route path="/admin/login" element={<AdminLogin />} />
 
-        <Route path="/user/login" element={<UserLogin />} />
+        <Route path="/user/login" element={<Navigate to="/" replace />} />
         <Route path="/user/register" element={<UserRegister />} />
 
 
