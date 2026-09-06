@@ -184,7 +184,7 @@ const AdminLogin = () => {
 
               {/* Secondary text link back to the user login */}
               <Link
-                to="/user/login"
+                to="/"
                 className="block text-center text-sm font-medium text-[#0B3D91] hover:underline"
               >
                 Login as User
