@@ -1,7 +1,7 @@
 import UserLogin from "./UserLogin";
 
 const Login = () => {
-  return <UserLogin initialMode="user" />;
+  return <UserLogin />;
 };
 
 export default Login;
