@@ -1,44 +1,39 @@
-import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useState, type FormEvent } from "react";
 import API_URL from "../config/api";
 
 const UserLogin = () => {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setEmailError("");
-    setPasswordError("");
-
-    let hasError = false;
 
     if (!email) {
       setEmailError("Email is required");
-      hasError = true;
     } else if (!emailPattern.test(email)) {
       setEmailError("Please enter a valid email");
-      hasError = true;
+    } else {
+      setEmailError("");
     }
 
     if (!password) {
       setPasswordError("Password is required");
-      hasError = true;
     } else if (password.length < 6) {
-      setPasswordError("Must be equal to or greater than 6 characters");
-      hasError = true;
+      setPasswordError("Must be equal to or greater than 6 digits");
+    } else {
+      setPasswordError("");
     }
 
-    if (hasError) return;
+    if (!email || !password || !emailPattern.test(email) || password.length < 6) {
+      return;
+    }
 
     try {
-      setLoading(true);
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
@@ -53,12 +48,12 @@ const UserLogin = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Login failed");
+        alert(data.message);
         return;
       }
 
       if (data.user.role !== "user") {
-        alert("This account does not have user access. Please use Admin Login.");
+        alert("This account does not have user access");
         return;
       }
 
@@ -67,24 +62,17 @@ const UserLogin = () => {
     } catch (error) {
       console.error("Login error:", error);
       alert("Unable to connect to server");
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md rounded-xl border bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-bold text-center text-gray-900">User Login</h1>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Enter your credentials to access your account
-        </p>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="w-96 rounded-xl border bg-white p-8 shadow">
+        <h1 className="text-2xl font-bold text-center">User Login</h1>
+        <p className="mt-2 text-center text-gray-600">For User access</p>
+        <form onSubmit={handleSubmit} className="mt-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
+            <label className="block text-sm font-medium">Email:</label>
             <input
               type="email"
               value={email}
@@ -92,18 +80,16 @@ const UserLogin = () => {
                 setEmail(e.target.value);
                 setEmailError("");
               }}
-              placeholder="Enter your email"
-              className="mt-1 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500"
+              placeholder="Enter Email"
+              className="mt-2 w-full rounded-lg border p-2"
             />
             {emailError && (
               <p className="mt-1 text-sm text-red-500">{emailError}</p>
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
+          <div className="mt-6">
+            <label className="block text-sm font-medium">Password:</label>
             <input
               type="password"
               value={password}
@@ -111,8 +97,8 @@ const UserLogin = () => {
                 setPassword(e.target.value);
                 setPasswordError("");
               }}
-              placeholder="Enter your password"
-              className="mt-1 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500"
+              placeholder="Enter Password"
+              className="mt-2 w-full rounded-lg border p-2"
             />
             {passwordError && (
               <p className="mt-1 text-sm text-red-500">{passwordError}</p>
@@ -121,34 +107,25 @@ const UserLogin = () => {
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-blue-500 py-3 font-medium text-white hover:bg-blue-600 transition disabled:opacity-50"
+            className="mt-6 w-full rounded-lg bg-blue-500 py-2 text-white hover:bg-blue-600"
           >
-            {loading ? "Logging in..." : "Login"}
+            Login
           </button>
+
+          <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:underline">
+            ← Back to account type selection
+          </Link>
         </form>
 
-        <div className="mt-6 space-y-3 text-center text-sm">
-          <div>
-            <span className="text-gray-600">Need admin access? </span>
-            <Link
-              to="/admin/login"
-              className="font-semibold text-blue-600 hover:underline"
-            >
-              Login as Admin
-            </Link>
-          </div>
-
-          <div className="border-t pt-3">
-            <span className="text-gray-600">Don't have an account? </span>
-            <button
-              type="button"
-              onClick={() => navigate("/user/register")}
-              className="font-semibold text-blue-600 hover:underline"
-            >
-              Create Account
-            </button>
-          </div>
+        <div className="mt-6 text-center">
+          <p className="text-gray-600">Don't have an account?</p>
+          <button
+            type="button"
+            onClick={() => navigate("/user/register")}
+            className="mt-2 text-blue-600 hover:underline font-medium"
+          >
+            Create Account
+          </button>
         </div>
       </div>
     </div>
