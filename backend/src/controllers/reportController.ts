@@ -82,6 +82,31 @@ export const getReportSummary = async (
        ORDER BY p.id DESC LIMIT 5`
     );
 
+    let totalComplaints = 0;
+    let pendingComplaints = 0;
+    let resolvedComplaints = 0;
+    let recentComplaints: RowDataPacket[] = [];
+    try {
+      const [allC] = await pool.query<CountRow[]>("SELECT COUNT(*) AS count FROM complaints");
+      totalComplaints = Number(allC[0]?.count || 0);
+
+      const [pendC] = await pool.query<CountRow[]>("SELECT COUNT(*) AS count FROM complaints WHERE status = 'pending'");
+      pendingComplaints = Number(pendC[0]?.count || 0);
+
+      const [resC] = await pool.query<CountRow[]>("SELECT COUNT(*) AS count FROM complaints WHERE status = 'resolved'");
+      resolvedComplaints = Number(resC[0]?.count || 0);
+
+      const [recC] = await pool.query<RowDataPacket[]>(`
+        SELECT c.id, c.category, c.subject, c.status, c.created_at, u.name AS user_name
+        FROM complaints c
+        LEFT JOIN users u ON c.user_id = u.id
+        ORDER BY c.id DESC LIMIT 5
+      `);
+      recentComplaints = recC;
+    } catch {
+      // safe fallback
+    }
+
     const userCount = Number(users[0]?.count || 0);
     const meterCount = Number(meters[0]?.count || 0);
     const activeMeterCount = Number(activeMeters[0]?.count || 0);
@@ -112,6 +137,9 @@ export const getReportSummary = async (
       totalPaidBills,
       outstandingAmount,
       totalPayments: totalPaidBills,
+      complaints: totalComplaints,
+      pendingComplaints,
+      resolvedComplaints,
     };
 
     return res.status(200).json({
@@ -119,6 +147,7 @@ export const getReportSummary = async (
       summary: summaryData,
       recentBills,
       recentPayments,
+      recentComplaints,
     });
   } catch (error) {
     console.error("Get report summary error:", error);

@@ -16,6 +16,9 @@ interface SummaryData {
   totalBilled: number;
   totalPaidBills: number;
   outstandingAmount: number;
+  complaints?: number;
+  pendingComplaints?: number;
+  resolvedComplaints?: number;
 }
 
 interface DashboardReport {
@@ -34,6 +37,14 @@ interface DashboardReport {
     payment_date: string;
     payment_method: string;
     status: string;
+    user_name: string;
+  }>;
+  recentComplaints?: Array<{
+    id: number;
+    category: string;
+    subject: string;
+    status: string;
+    created_at: string;
     user_name: string;
   }>;
 }
@@ -86,9 +97,13 @@ const AdminDashboard = () => {
             totalBilled: result.totalBilled || 0,
             totalPaidBills: result.totalPaidBills || 0,
             outstandingAmount: result.outstandingAmount || 0,
+            complaints: result.complaints || 0,
+            pendingComplaints: result.pendingComplaints || 0,
+            resolvedComplaints: result.resolvedComplaints || 0,
           },
           recentBills: result.recentBills || [],
           recentPayments: result.recentPayments || [],
+          recentComplaints: result.recentComplaints || [],
         };
 
         setData(normalizedData);
@@ -134,6 +149,13 @@ const AdminDashboard = () => {
       path: "/admin/payments",
       color: "bg-purple-50 text-purple-600",
     },
+    {
+      title: "Complaints",
+      value: summary ? (summary.complaints ?? 0) : 0,
+      subtext: `${summary ? (summary.pendingComplaints ?? 0) : 0} Pending Action`,
+      path: "/admin/complaints",
+      color: "bg-rose-50 text-rose-600",
+    },
   ];
 
   return (
@@ -175,18 +197,18 @@ const AdminDashboard = () => {
         {!loading && !error && (
           <>
             {/* Dashboard cards */}
-            <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               {statCards.map((stat) => (
                 <div
                   key={stat.title}
                   onClick={() => navigate(stat.path)}
-                  className="cursor-pointer rounded-xl border bg-white p-6 shadow-sm hover:shadow-md transition"
+                  className="cursor-pointer rounded-xl border bg-white p-5 shadow-sm hover:shadow-md transition"
                 >
-                  <p className="text-sm font-medium text-gray-500">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
                     {stat.title}
                   </p>
-                  <h2 className="mt-2 text-3xl font-bold">{stat.value}</h2>
-                  <p className="mt-2 text-xs font-semibold text-gray-500">
+                  <h2 className="mt-2 text-2xl font-bold">{stat.value}</h2>
+                  <p className="mt-2 text-xs font-medium text-gray-500">
                     {stat.subtext}
                   </p>
                 </div>
@@ -194,7 +216,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Quick Overview Section */}
-            <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <div className="mt-8 grid gap-6 lg:grid-cols-3">
               {/* Recent Bills */}
               <div className="rounded-xl border bg-white p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
@@ -285,6 +307,57 @@ const AdminDashboard = () => {
                 ) : (
                   <p className="text-sm text-gray-500">
                     No recent payments recorded.
+                  </p>
+                )}
+              </div>
+
+              {/* Recent Complaints */}
+              <div className="rounded-xl border bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold">Recent Complaints</h2>
+                  <button
+                    onClick={() => navigate("/admin/complaints")}
+                    className="text-sm font-medium text-blue-600 hover:underline"
+                  >
+                    Manage
+                  </button>
+                </div>
+                {data?.recentComplaints && data.recentComplaints.length > 0 ? (
+                  <div className="space-y-3">
+                    {data.recentComplaints.map((c) => (
+                      <div
+                        key={c.id}
+                        className="flex items-center justify-between border-b pb-3"
+                      >
+                        <div className="max-w-[170px]">
+                          <p className="font-medium text-gray-800 truncate">
+                            {c.subject}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {c.user_name || "User"} · {c.category}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full capitalize font-semibold ${
+                              c.status === "resolved"
+                                ? "bg-green-100 text-green-700"
+                                : c.status === "in_progress"
+                                ? "bg-blue-100 text-blue-700"
+                                : c.status === "pending"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {c.status.replace("_", " ")}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    No complaints registered.
                   </p>
                 )}
               </div>

@@ -53,6 +53,13 @@ const AdminSidebar = () => {
         >
           Reports
         </Link>
+
+        <Link
+          to="/admin/complaints"
+          className="block rounded-lg px-4 py-3 hover:bg-gray-100"
+        >
+          Complaints
+        </Link>
       </nav>
     </aside>
   );

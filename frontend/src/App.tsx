@@ -35,6 +35,9 @@ import PaymentDetails from "./pages/admin/PaymentDetails";
 // Admin - Reports
 import Reports from "./pages/admin/Reports";
 
+// Admin - Complaints
+import AdminComplaints from "./pages/admin/Complaints";
+
 // User
 import UserProfile from "./pages/user/UserProfile";
 import UserMeter from "./pages/user/UserMeter";
@@ -165,6 +168,12 @@ const App = () => {
           <Route
             path="/admin/reports"
             element={<Reports />}
+          />
+
+          {/* Complaints */}
+          <Route
+            path="/admin/complaints"
+            element={<AdminComplaints />}
           />
 
         </Route>
