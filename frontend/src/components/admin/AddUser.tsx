@@ -10,6 +10,8 @@ const AddUser = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"user" | "admin">("user");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -51,6 +53,8 @@ const AddUser = () => {
           email,
           password,
           role,
+          phone,
+          address,
         }),
       });
 
@@ -67,6 +71,8 @@ const AddUser = () => {
       setEmail("");
       setPassword("");
       setRole("user");
+      setPhone("");
+      setAddress("");
 
       setTimeout(() => {
         navigate("/admin/users");
@@ -140,6 +146,32 @@ const AddUser = () => {
                 placeholder="Enter password (min 6 characters)"
                 minLength={6}
                 required
+                className="mt-2 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Enter phone number"
+                className="mt-2 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Address
+              </label>
+              <textarea
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter address"
+                rows={3}
                 className="mt-2 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500"
               />
             </div>

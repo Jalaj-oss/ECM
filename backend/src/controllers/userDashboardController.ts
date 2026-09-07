@@ -8,10 +8,18 @@ export const getUserDashboard = async (req: Request, res: Response) => {
     const id = userId(req);
     if (!id) return res.status(401).json({ message: "Unauthorized" });
 
-    const [users] = await pool.query(
-      "SELECT id, name, email, role, phone, address FROM users WHERE id = ?", [id]
-    );
-    const userRows = users as any[];
+    let userRows: any[] = [];
+    try {
+      const [users] = await pool.query(
+        "SELECT id, name, email, role, phone, address FROM users WHERE id = ?", [id]
+      );
+      userRows = users as any[];
+    } catch {
+      const [users] = await pool.query(
+        "SELECT id, name, email, role FROM users WHERE id = ?", [id]
+      );
+      userRows = (users as any[]).map(u => ({ ...u, phone: null, address: null }));
+    }
     if (!userRows.length) return res.status(404).json({ message: "User not found" });
 
     const [meters] = await pool.query(
@@ -39,10 +47,18 @@ export const getUserDashboard = async (req: Request, res: Response) => {
 export const getUserProfile = async (req: Request, res: Response) => {
   try {
     const id = userId(req);
-    const [rows] = await pool.query(
-      "SELECT id, name, email, role, phone, address FROM users WHERE id = ?", [id]
-    );
-    const users = rows as any[];
+    let users: any[] = [];
+    try {
+      const [rows] = await pool.query(
+        "SELECT id, name, email, role, phone, address FROM users WHERE id = ?", [id]
+      );
+      users = rows as any[];
+    } catch {
+      const [rows] = await pool.query(
+        "SELECT id, name, email, role FROM users WHERE id = ?", [id]
+      );
+      users = (rows as any[]).map(u => ({ ...u, phone: null, address: null }));
+    }
     if (!users.length) return res.status(404).json({ message: "User not found" });
     return res.json({ user: users[0] });
   } catch (error) {

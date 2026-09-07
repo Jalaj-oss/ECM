@@ -8,6 +8,8 @@ interface User {
   name: string;
   email: string;
   role: "admin" | "user";
+  phone?: string | null;
+  address?: string | null;
 }
 
 const UserDetails = () => {
@@ -100,6 +102,16 @@ const UserDetails = () => {
       <div>
         <p className="text-sm text-gray-500">Email</p>
         <p className="font-medium">{user.email}</p>
+      </div>
+
+      <div>
+        <p className="text-sm text-gray-500">Phone Number</p>
+        <p className="font-medium">{user.phone || "Not provided"}</p>
+      </div>
+
+      <div>
+        <p className="text-sm text-gray-500">Address</p>
+        <p className="font-medium">{user.address || "Not provided"}</p>
       </div>
 
       <div>

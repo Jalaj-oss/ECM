@@ -1,10 +1,12 @@
 import https from "https";
 import app from "./server.js";
+import { initDb } from "./config/initDb.js";
 
 const PORT = Number(process.env.PORT) || 5000;
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, "0.0.0.0", async () => {
   console.log(`server running on port ${PORT}`);
+  await initDb();
 
   // Keep Railway server awake by pinging health endpoint every 5 minutes
   const SERVER_URL = process.env.RAILWAY_PUBLIC_DOMAIN 

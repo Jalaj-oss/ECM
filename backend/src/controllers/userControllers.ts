@@ -4,9 +4,18 @@ import bcrypt from "bcrypt";
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
-    const [rows] = await pool.query(
-      "SELECT id, name, email, role FROM users ORDER BY id DESC"
-    );
+    let rows: any[];
+    try {
+      const [data] = await pool.query(
+        "SELECT id, name, email, role, phone, address FROM users ORDER BY id DESC"
+      );
+      rows = data as any[];
+    } catch {
+      const [data] = await pool.query(
+        "SELECT id, name, email, role FROM users ORDER BY id DESC"
+      );
+      rows = (data as any[]).map(u => ({ ...u, phone: null, address: null }));
+    }
 
     return res.status(200).json({
       users: rows,
@@ -23,17 +32,20 @@ export const getUserById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const [rows] = await pool.query(
-      "SELECT id, name, email, role FROM users WHERE id = ?",
-      [id]
-    );
-
-    const users = rows as {
-      id: number;
-      name: string;
-      email: string;
-      role: "admin" | "user";
-    }[];
+    let users: any[];
+    try {
+      const [rows] = await pool.query(
+        "SELECT id, name, email, role, phone, address FROM users WHERE id = ?",
+        [id]
+      );
+      users = rows as any[];
+    } catch {
+      const [rows] = await pool.query(
+        "SELECT id, name, email, role FROM users WHERE id = ?",
+        [id]
+      );
+      users = (rows as any[]).map(u => ({ ...u, phone: null, address: null }));
+    }
 
     if (users.length === 0) {
       return res.status(404).json({
@@ -54,7 +66,7 @@ export const getUserById = async (req: Request, res: Response) => {
 };
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, phone, address } = req.body;
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({
@@ -81,10 +93,17 @@ export const createUser = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const [result] = await pool.query(
-      "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
-      [name, email, hashedPassword, role]
-    );
+    try {
+      await pool.query(
+        "INSERT INTO users (name, email, password, role, phone, address) VALUES (?, ?, ?, ?, ?, ?)",
+        [name, email, hashedPassword, role, phone || null, address || null]
+      );
+    } catch {
+      await pool.query(
+        "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+        [name, email, hashedPassword, role]
+      );
+    }
 
     return res.status(201).json({
       message: "User created successfully",
@@ -100,7 +119,7 @@ export const createUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, role } = req.body;
+    const { name, email, role, phone, address } = req.body;
 
     if (!name || !email || !role) {
       return res.status(400).json({
@@ -139,10 +158,17 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     // Update user
-    await pool.query(
-      "UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?",
-      [name, email, role, id]
-    );
+    try {
+      await pool.query(
+        "UPDATE users SET name = ?, email = ?, role = ?, phone = ?, address = ? WHERE id = ?",
+        [name, email, role, phone !== undefined ? phone : null, address !== undefined ? address : null, id]
+      );
+    } catch {
+      await pool.query(
+        "UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?",
+        [name, email, role, id]
+      );
+    }
 
     return res.status(200).json({
       message: "User updated successfully",

@@ -16,6 +16,8 @@ const UserProfile = () => {
     {user&&<div className="mt-8 max-w-lg rounded-xl border bg-white p-6 shadow-sm space-y-5">
       <p><span className="text-gray-500">Name:</span> {user.name}</p>
       <p><span className="text-gray-500">Email:</span> {user.email}</p>
+      <p><span className="text-gray-500">Phone Number:</span> {user.phone || "Not provided"}</p>
+      <p><span className="text-gray-500">Address:</span> {user.address || "Not provided"}</p>
       <p><span className="text-gray-500">Role:</span> {user.role}</p>
     </div>}
   </main></div>;

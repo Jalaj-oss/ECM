@@ -10,6 +10,8 @@ const EditUser = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"admin" | "user">("user");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -40,9 +42,11 @@ const EditUser = () => {
           return;
         }
 
-        setName(data.user.name);
-        setEmail(data.user.email);
-        setRole(data.user.role);
+        setName(data.user.name || "");
+        setEmail(data.user.email || "");
+        setRole(data.user.role || "user");
+        setPhone(data.user.phone || "");
+        setAddress(data.user.address || "");
       } catch (err) {
         console.error("Fetch user error:", err);
         setError("Unable to connect to server");
@@ -84,6 +88,8 @@ const EditUser = () => {
           name,
           email,
           role,
+          phone,
+          address,
         }),
       });
 
@@ -162,6 +168,32 @@ const EditUser = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="mt-2 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Enter phone number"
+                className="mt-2 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Address
+              </label>
+              <textarea
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter address"
+                rows={3}
                 className="mt-2 w-full rounded-lg border px-4 py-2.5 outline-none focus:border-blue-500"
               />
             </div>
