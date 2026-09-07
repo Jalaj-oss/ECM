@@ -9,6 +9,7 @@ const UserSidebar = () => {
     ["/user/meters", "My Meter"],
     ["/user/bills", "My Bills"],
     ["/user/payments", "My Payments"],
+    ["/user/complaints", "Complaints"],
   ];
 
   return (

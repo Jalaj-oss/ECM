@@ -10,6 +10,7 @@ import reportRoutes from "./routes/reportRoutes.js";
 import userDashboardRoutes from "./routes/userDashboardRoutes.js";
 import registerRoutes from "./routes/registerRoutes.js";
 import userOnlinePaymentRoutes from "./routes/userOnlinePaymentRoutes.js";
+import complaintRoutes from "./routes/complaintRoutes.js";
 import { handleStripeWebhook } from "./controllers/userOnlinePaymentController.js";
 
 const app = express();
@@ -49,6 +50,7 @@ app.use("/api/reports", reportRoutes);
 
 // Specific online payment routes MUST come before generic dashboard routes
 app.use("/api/user", userOnlinePaymentRoutes);
+app.use("/api/user/complaints", complaintRoutes);
 app.use("/api/user", userDashboardRoutes);
 app.use("/api/register", registerRoutes);
 

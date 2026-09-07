@@ -43,6 +43,7 @@ import UserBillDetails from "./pages/user/UserBillDetails";
 import UserPayments from "./pages/user/UserPayments";
 import UserPaymentDetails from "./pages/user/UserPaymentDetails";
 import UserRegister from "./pages/UserRegister";
+import UserComplaints from "./pages/user/UserComplaints";
 import UserPaymentSuccess from "./pages/user/UserPaymentSuccess";
 
 void UserLogin;
@@ -218,6 +219,12 @@ const App = () => {
           <Route
             path="/user/payment-success"
             element={<UserPaymentSuccess />}
+          />
+
+          {/* Complaints */}
+          <Route
+            path="/user/complaints"
+            element={<UserComplaints />}
           />
 
         </Route>

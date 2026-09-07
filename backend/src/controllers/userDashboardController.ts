@@ -37,7 +37,18 @@ export const getUserDashboard = async (req: Request, res: Response) => {
        FROM payments WHERE user_id = ? ORDER BY id DESC`, [id]
     );
 
-    return res.json({ user: userRows[0], meters, bills, payments });
+    let complaints: any[] = [];
+    try {
+      const [complaintRows] = await pool.query(
+        `SELECT id, category, subject, status, created_at
+         FROM complaints WHERE user_id = ? ORDER BY id DESC`, [id]
+      );
+      complaints = complaintRows as any[];
+    } catch {
+      complaints = [];
+    }
+
+    return res.json({ user: userRows[0], meters, bills, payments, complaints });
   } catch (error) {
     console.error("Get user dashboard error:", error);
     return res.status(500).json({ message: "Server error" });
