@@ -1,4 +1,3 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
 import app from "../backend/src/server.js";
 import { initDb } from "../backend/src/config/initDb.js";
 
@@ -14,16 +13,18 @@ const ensureDb = (): Promise<void> => {
       })
       .catch((err) => {
         console.error("DB init error:", err);
-        dbReadyPromise = null; // allow retry
+        dbReadyPromise = null;
       });
   }
   return dbReadyPromise!;
 };
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
+  // Preserve original URL so Express can route correctly
+  if (!req.url) {
+    const pathParts = (req.query?.path as string[]) ?? [];
+    req.url = "/api/" + pathParts.join("/");
+  }
   await ensureDb();
-  return new Promise<void>((resolve) => {
-    (app as any)(req, res as any, () => resolve());
-    res.on("finish", resolve);
-  });
+  return app(req, res);
 }
