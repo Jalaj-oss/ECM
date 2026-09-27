@@ -36,7 +36,8 @@ export const authenticate = (
         message: "Invalid authorization format",
       });
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+    const jwtSecret = process.env.JWT_SECRET || "default_jwt_secret_key_12345";
+    const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
     req.user = decoded;
 

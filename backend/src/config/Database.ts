@@ -2,7 +2,10 @@ import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 dotenv.config();
 
-const connectionUri = process.env.DATABASE_URL || process.env.MYSQL_URL;
+let connectionUri = process.env.DATABASE_URL || process.env.MYSQL_URL;
+if (connectionUri) {
+  connectionUri = connectionUri.replace(/\/sys(?=[?\/]|$)/, "/test");
+}
 
 const pool = connectionUri
   ? mysql.createPool({

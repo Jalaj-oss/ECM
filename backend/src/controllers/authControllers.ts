@@ -79,13 +79,14 @@ const passwordMatch= await bcrypt.compare(
             message:"Invalid email or password",
         })
     }
-    const token =jwt.sign({
+    const jwtSecret = process.env.JWT_SECRET || "default_jwt_secret_key_12345";
+    const token = jwt.sign({
         id:user.id,
         role:user.role,
     },
-    process.env.JWT_SECRET!,
+    jwtSecret,
     {
-        expiresIn:"1h",
+        expiresIn: "7d",
     }
     )
     return res.status(200).json({
@@ -98,11 +99,12 @@ const passwordMatch= await bcrypt.compare(
             role:user.role,
         },
     })
-        } catch(error){
-            console.log("Login error :",error)
+        } catch(error: any){
+            console.log("Login error :", error)
 
             return res.status(500).json({
                 message:"Server error",
+                details: error?.message || String(error)
             })
         }
     }
