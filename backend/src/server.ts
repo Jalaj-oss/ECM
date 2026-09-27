@@ -26,7 +26,7 @@ app.post(
 
 app.use(express.json());
 
-app.get("/api/health", async (req, res) => {
+const healthHandler = async (req: express.Request, res: express.Response) => {
   try {
     await pool.query("SELECT 1");
     res.json({
@@ -40,7 +40,12 @@ app.get("/api/health", async (req, res) => {
       message: "Database connection failed",
     });
   }
-});
+};
+
+app.get("/", (req, res) => res.json({ message: "EHMS Backend API is active" }));
+app.get("/api", (req, res) => res.json({ message: "EHMS Backend API is active" }));
+app.get("/health", healthHandler);
+app.get("/api/health", healthHandler);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
