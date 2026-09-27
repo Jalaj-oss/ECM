@@ -4,7 +4,11 @@
   "outputDirectory": "frontend/dist",
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/api/:path*",
+      "destination": "https://backend-weld-gamma-96.vercel.app/api/:path*"
+    },
+    {
+      "source": "/((?!api/|.*\\..*).*)$",
       "destination": "/index.html"
     }
   ]
