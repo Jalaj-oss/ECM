@@ -2,7 +2,8 @@ import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 dotenv.config();
 
-let connectionUri = process.env.DATABASE_URL || process.env.MYSQL_URL;
+const TIDB_FALLBACK = "mysql://X8JVjTYoyj56p2j.root:hTs3keGb5uHdyakL@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?ssl-mode=VERIFY_IDENTITY";
+let connectionUri = process.env.DATABASE_URL || process.env.MYSQL_URL || TIDB_FALLBACK;
 if (connectionUri) {
   connectionUri = connectionUri.replace(/\/sys(?=[?\/]|$)/, "/test");
 }

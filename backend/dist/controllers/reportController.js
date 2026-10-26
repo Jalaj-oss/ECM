@@ -1,0 +1,95 @@
+import pool from "../config/Database.js";
+export const getReportSummary = async (_req, res) => {
+    try {
+        const [users] = await pool.query("SELECT COUNT(*) AS count FROM users WHERE role = 'user'");
+        const [meters] = await pool.query("SELECT COUNT(*) AS count FROM meters");
+        const [activeMeters] = await pool.query("SELECT COUNT(*) AS count FROM meters WHERE status = 'active'");
+        const [bills] = await pool.query("SELECT COUNT(*) AS count FROM bills");
+        const [pendingBills] = await pool.query("SELECT COUNT(*) AS count FROM bills WHERE status = 'pending'");
+        const [paidBills] = await pool.query("SELECT COUNT(*) AS count FROM bills WHERE status = 'paid'");
+        const [overdueBills] = await pool.query("SELECT COUNT(*) AS count FROM bills WHERE status = 'overdue'");
+        const [payments] = await pool.query("SELECT COUNT(*) AS count FROM payments");
+        const [completedPayments] = await pool.query("SELECT COUNT(*) AS count FROM payments WHERE status = 'completed'");
+        const [failedPayments] = await pool.query("SELECT COUNT(*) AS count FROM payments WHERE status = 'failed'");
+        const [sumBilled] = await pool.query("SELECT COALESCE(SUM(amount), 0) AS total FROM bills");
+        const [sumPaid] = await pool.query("SELECT COALESCE(SUM(amount), 0) AS total FROM bills WHERE status = 'paid'");
+        const [sumOutstanding] = await pool.query("SELECT COALESCE(SUM(amount), 0) AS total FROM bills WHERE status IN ('pending', 'overdue')");
+        const [recentBills] = await pool.query(`SELECT b.id, b.billing_month, b.amount, b.status, u.name AS user_name, m.meter_number 
+       FROM bills b 
+       LEFT JOIN users u ON b.user_id = u.id 
+       LEFT JOIN meters m ON b.meter_id = m.id 
+       ORDER BY b.id DESC LIMIT 5`);
+        const [recentPayments] = await pool.query(`SELECT p.id, p.amount, p.payment_date, p.payment_method, p.status, u.name AS user_name 
+       FROM payments p 
+       LEFT JOIN users u ON p.user_id = u.id 
+       ORDER BY p.id DESC LIMIT 5`);
+        let totalComplaints = 0;
+        let pendingComplaints = 0;
+        let resolvedComplaints = 0;
+        let recentComplaints = [];
+        try {
+            const [allC] = await pool.query("SELECT COUNT(*) AS count FROM complaints");
+            totalComplaints = Number(allC[0]?.count || 0);
+            const [pendC] = await pool.query("SELECT COUNT(*) AS count FROM complaints WHERE status = 'pending'");
+            pendingComplaints = Number(pendC[0]?.count || 0);
+            const [resC] = await pool.query("SELECT COUNT(*) AS count FROM complaints WHERE status = 'resolved'");
+            resolvedComplaints = Number(resC[0]?.count || 0);
+            const [recC] = await pool.query(`
+        SELECT c.id, c.category, c.subject, c.status, c.created_at, u.name AS user_name
+        FROM complaints c
+        LEFT JOIN users u ON c.user_id = u.id
+        ORDER BY c.id DESC LIMIT 5
+      `);
+            recentComplaints = recC;
+        }
+        catch {
+            // safe fallback
+        }
+        const userCount = Number(users[0]?.count || 0);
+        const meterCount = Number(meters[0]?.count || 0);
+        const activeMeterCount = Number(activeMeters[0]?.count || 0);
+        const billCount = Number(bills[0]?.count || 0);
+        const pendingBillCount = Number(pendingBills[0]?.count || 0);
+        const paidBillCount = Number(paidBills[0]?.count || 0);
+        const overdueBillCount = Number(overdueBills[0]?.count || 0);
+        const paymentCount = Number(payments[0]?.count || 0);
+        const completedPaymentCount = Number(completedPayments[0]?.count || 0);
+        const failedPaymentCount = Number(failedPayments[0]?.count || 0);
+        const totalBilled = Number(sumBilled[0]?.total || 0);
+        const totalPaidBills = Number(sumPaid[0]?.total || 0);
+        const outstandingAmount = Number(sumOutstanding[0]?.total || 0);
+        const summaryData = {
+            users: userCount,
+            meters: meterCount,
+            activeMeters: activeMeterCount,
+            bills: billCount,
+            pendingBills: pendingBillCount,
+            paidBills: paidBillCount,
+            overdueBills: overdueBillCount,
+            payments: paymentCount,
+            paymentCount: paymentCount,
+            completedPayments: completedPaymentCount,
+            failedPayments: failedPaymentCount,
+            totalBilled,
+            totalPaidBills,
+            outstandingAmount,
+            totalPayments: totalPaidBills,
+            complaints: totalComplaints,
+            pendingComplaints,
+            resolvedComplaints,
+        };
+        return res.status(200).json({
+            ...summaryData,
+            summary: summaryData,
+            recentBills,
+            recentPayments,
+            recentComplaints,
+        });
+    }
+    catch (error) {
+        console.error("Get report summary error:", error);
+        return res.status(500).json({
+            message: "Server error",
+        });
+    }
+};

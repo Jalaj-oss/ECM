@@ -20,6 +20,9 @@ const ensureDb = (): Promise<void> => {
 };
 
 export default async function handler(req: any, res: any) {
+  if (req.url && !req.url.startsWith("/api")) {
+    req.url = "/api" + (req.url.startsWith("/") ? req.url : "/" + req.url);
+  }
   await ensureDb();
   return app(req, res);
 }
