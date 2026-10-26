@@ -20,6 +20,12 @@ const ensureDb = (): Promise<void> => {
 };
 
 export default async function handler(req: any, res: any) {
+  if (!req.url || req.url === "/api" || req.url === "/api/") {
+    const matched = req.headers["x-matched-path"];
+    if (matched && matched !== "/api") {
+      req.url = matched;
+    }
+  }
   if (req.url && !req.url.startsWith("/api")) {
     req.url = "/api" + (req.url.startsWith("/") ? req.url : "/" + req.url);
   }
