@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/(.+)",
-      "destination": "/api"
+      "source": "/api/:path*",
+      "destination": "https://backend-weld-gamma-96.vercel.app/api/:path*"
     },
     {
       "source": "/((?!api/|.*\\..*).*)$",
